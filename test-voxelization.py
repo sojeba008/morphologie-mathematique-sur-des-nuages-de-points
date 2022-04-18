@@ -6,4 +6,4 @@ Created on Sun Apr 17 23:37:03 2022
 """
 
 import Voxelization as vxl
-test = vxl.voxelize(filename="data/chaise.txt", h=40,algorithm="binaire")
+test = vxl.voxelize(filename="data/chaise.txt", h=10,algorithm="binaire")

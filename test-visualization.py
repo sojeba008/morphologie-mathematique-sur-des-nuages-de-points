@@ -6,7 +6,7 @@ Created on Mon Apr 18 01:43:46 2022
 """
 
 import Visualization as v
-v.visualize("chaise.txt")
+v.visualize("data/chaise.txt")
 
 v.visualize("data/chaiseFormated-H10-Binaire.txt")
 
