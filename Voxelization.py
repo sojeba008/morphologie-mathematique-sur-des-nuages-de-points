@@ -148,9 +148,9 @@ def voxelize(filename="data/chaise.txt",h=100, algorithm=""):
         #o3d.visualization.draw_geometries([pcd])
     
     if(algorithm=="" or algorithm=="Moyenne-Empirique"):  
-        voxels['r'] = voxels['points'].apply(lambda pts:moyenne_empirique(pts,'r'))
-        voxels['g'] = voxels['points'].apply(lambda pts:moyenne_empirique(pts,'g'))
-        voxels['b'] = voxels['points'].apply(lambda pts:moyenne_empirique(pts,'b'))
+        voxels['r'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'r')))
+        voxels['g'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'g')))
+        voxels['b'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'b')))
         output = filename.split(".")[0]+"-h"+str(h)+"-Moyenne-Empirique.txt"
         result['Moyenne-Empirique'] = output
         voxels[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
