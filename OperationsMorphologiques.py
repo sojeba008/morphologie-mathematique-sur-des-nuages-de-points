@@ -156,7 +156,90 @@ class OperationsMorphologique:
         output = str(filename.split(".")[0])+"-fermeture.txt"
         return self.erosion_binaire("data/temp.txt", el_struct, centre, output=output)
 
-#centre = [1,1,1]
-#dilatation_binaire(df, el_struct, centre ) 
-#dilatation_binaire(df, el_struct, centre ) 
-#dilatation_binaire(df, el_struct, centre ) 
+
+
+
+
+
+
+
+
+
+
+
+    def morpho_f(self, line, array,df_copy, typ):   
+        i, j, k = float(line["i"]), float(line["j"]), float(line["k"])
+        r = []
+        g = []
+        b = []
+        for el in array :
+            temp = (df_copy[(df_copy['i']==(i+float(el[0]))) & (df_copy['j']==(j+float(el[1]))) & (df_copy['k'] == (k+float(el[2])))])
+            if(line.name==0): print(temp)
+            if(len(temp)==1):
+                r.append(temp.iloc[0]['r'])
+                g.append(temp.iloc[0]['g'])
+                b.append(temp.iloc[0]['b'])
+                print(r)
+         
+        if typ=="dilatation" and len(r)>0 :
+            line['r'] = max(r)
+            line['g'] = max(g)
+            line['b'] = max(b)
+        elif typ=="erosion" and len(r)>0 :
+            line['r'] = min(r)
+            line['g'] = min(g)
+            line['b'] = min(b)
+        return line
+
+
+    def erosion(self, filename, el_struct, centre ) :
+        df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        c0=centre[0]
+        c1=centre[1]
+        c2=centre[2]
+        array = []
+        i=-1
+        for e1 in el_struct:
+            i+=1
+            j=-1
+            for e2 in e1:
+                j+=1
+                k=-1
+                for e3 in e2:
+                    k+=1
+                    if e3==1 and [i,j,k]!=centre : 
+                        array.append([i-c0,j-c1,k-c2])
+        print(array)
+        #return 0
+        df_copy=df.copy()
+        df = df.apply(lambda x : self.morpho_f(x, array, df_copy,'erosion'), axis=1)
+        output = str(filename.split(".")[0])+"-erosion.txt";
+        df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
+    #
+    
+    def dilatation(self,filename, el_struct, centre ) :
+        df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        c0=centre[0]
+        c1=centre[1]
+        c2=centre[2]
+        array = []
+        i=-1
+        for e1 in el_struct:
+            i+=1
+            j=-1
+            for e2 in e1:
+                j+=1
+                k=-1
+                for e3 in e2:
+                    k+=1
+                    if e3==1 and [i,j,k]!=centre : 
+                        array.append([i-c0,j-c1,k-c2])
+        print(array)
+        #return 0
+        df_copy=df.copy()
+        df = df.apply(lambda x : self.morpho_f(x, array, df_copy,'dilatation'), axis=1)
+        output = str(filename.split(".")[0])+"-dilatation.txt";
+        df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
+    #
