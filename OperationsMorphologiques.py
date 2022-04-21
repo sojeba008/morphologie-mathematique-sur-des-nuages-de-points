@@ -159,7 +159,16 @@ class OperationsMorphologique:
 
 
 
-
+    def getSymmetry(self, el_struct):
+        i=0
+        while i<len(el_struct):
+            j=0
+            while j<len(el_struct[0]):
+                el_struct[i][j]=list(reversed(el_struct[i][j])) 
+                j+=1
+            i+=1
+        el_struct= list(reversed(el_struct)) 
+        return el_struct
 
 
 
