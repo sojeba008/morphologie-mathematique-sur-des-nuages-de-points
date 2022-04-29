@@ -18,7 +18,7 @@ def arrondi(value):
 filename='data/chaiseFormated-H100-Binaire.txt'
 df = pd.read_csv('data/chaiseFormated-H100-Binaire.txt', names=["i","j","k","r","g","b"], delimiter=" ")
 #df = pd.read_csv("open3dDatasetFormated-D2-Binaire.txt", names=["i","j","k","r","g","b"], delimiter=" ")
-df = df.head(10)
+#df = df.head(10)
 pcd = o3d.io.read_point_cloud(filename, format='xyzrgb')
 #o3d.visualization.draw_geometries([pcd])
 resdilater = df.copy()
@@ -31,9 +31,9 @@ def element (tab,taille):
         for l in range(taille):
             for c in range(taille):
                 if tab[h][l][c]==1:
-                    res[0].append(h)
-                    res[1].append(l)
-                    res[2].append(c)
+                    res[0].append(h-1)
+                    res[1].append(l-1)
+                    res[2].append(c-1)
                     
     return res
     
@@ -44,33 +44,10 @@ pos=element(tab, 3)
 
 def correspondant(x,y,z,i,j,k):
     
-    xr=0
-    yr=0
-    ze=0
-    if x==0:
-        xr=i-1
-    else:
-        if x==1:
-            xr=i
-        else:
-            xr=i+1
-            
-            
-    if y==0:
-        yr=j-1
-    else:
-        if y==1:
-            yr=j
-        else:
-            yr=j+1
-            
-    if z==0:
-          zr=k-1
-    else:
-        if z==1:
-              zr=k
-        else:
-            zr=k+1
+    
+    xr=i+x
+    yr=j+y;
+    zr=k+z;
     
     return xr,yr,zr
  
@@ -78,9 +55,9 @@ def correspondant(x,y,z,i,j,k):
 resdilater = df.copy()
 
 reseroder=df.copy()
-print("ichi "+str(len(reseroder)))
+
 resouvert=df.copy()
-print("ichi "+str(len(reseroder)))
+
 
 resfermer=df.copy()
 def dilatationbin(df,res,pos):
@@ -108,7 +85,7 @@ resdilater[['i','j','k','r','g','b']].to_csv(filename.split(".")[0]+"DilatationB
 
 pcd = o3d.io.read_point_cloud(filename.split(".")[0]+"DilatationBin.txt", format='xyzrgb')
 
-#o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 
 def erosionbin(df,res,pos):
     
@@ -136,7 +113,7 @@ reseroder[['i','j','k','r','g','b']].to_csv(filename.split(".")[0]+"ErosionBin.t
 
 pcd = o3d.io.read_point_cloud(filename.split(".")[0]+"ErosionBin.txt", format='xyzrgb')
 
-#o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 
 
 def ouverture(df,res,pos):
@@ -149,15 +126,15 @@ def ouverture(df,res,pos):
    return res
 
 resouvert=ouverture(df,resouvert,pos)
-print("ichi "+str(len(resouvert)))
+
 resouvert=ouverture(resouvert.copy(),resouvert,pos)
-print("ni "+str(len(resouvert)))
+
 
 resouvert[['i','j','k','r','g','b']].to_csv(filename.split(".")[0]+"OuvertureBin.txt", sep=" ", index=False ,index_label=False, header=False)
 
 pcd = o3d.io.read_point_cloud(filename.split(".")[0]+"OuvertureBin.txt", format='xyzrgb')
 
-#o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 
 
 def fermeture(df,res,pos):
@@ -177,7 +154,7 @@ resfermer[['i','j','k','r','g','b']].to_csv(filename.split(".")[0]+"FermetureBin
 
 pcd = o3d.io.read_point_cloud(filename.split(".")[0]+"FermetureBin.txt", format='xyzrgb')
 
-#o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 
 
 
