@@ -17,10 +17,10 @@ def arrondi(value):
 
 filename='data/chaiseFormated-H100-Binaire.txt'
 df = pd.read_csv('data/chaiseFormated-H100-Binaire.txt', names=["i","j","k","r","g","b"], delimiter=" ")
-#df = pd.read_csv("open3dDatasetFormated-D2-Binaire.txt", names=["i","j","k","r","g","b"], delimiter=" ")
+
 #df = df.head(10)
 pcd = o3d.io.read_point_cloud(filename, format='xyzrgb')
-#o3d.visualization.draw_geometries([pcd])
+o3d.visualization.draw_geometries([pcd])
 resdilater = df.copy()
 
 reseroder=df.copy()
@@ -41,16 +41,6 @@ def element (tab,taille):
 tab=[[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,1],[0,0,0]],[[0,0,0],[0,0,0],[0,0,0]]]
 pos=element(tab, 3)
 
-
-def correspondant(x,y,z,i,j,k):
-    
-    
-    xr=i+x
-    yr=j+y;
-    zr=k+z;
-    
-    return xr,yr,zr
- 
     
 resdilater = df.copy()
 
@@ -69,7 +59,7 @@ def dilatationbin(df,res,pos):
                        x=int(p['i'])
                        y=int(p['j'])
                        z=int(p['k'])
-                       i,j,k=correspondant(pos[0][n],pos[1][n],pos[2][n],x,y,z)
+                       i,j,k=x+pos[0][n],y+pos[1][n],z+pos[2][n]
                     
                        exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
                     
@@ -96,12 +86,12 @@ def erosionbin(df,res,pos):
                        x=int(p['i'])
                        y=int(p['j'])
                        z=int(p['k'])
-                       i,j,k=correspondant(pos[0][n],pos[1][n],pos[2][n],x,y,z)
+                       i,j,k= x+pos[0][n],y+pos[1][n],z+pos[2][n]
                     
                        exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
                        
                        if len(exist)==0:
-                           print(len(exist))
+                         
                            res.drop(index=ndf,inplace=True)
                            break
                        
