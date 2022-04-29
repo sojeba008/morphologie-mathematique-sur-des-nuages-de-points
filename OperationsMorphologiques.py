@@ -27,134 +27,98 @@ class OperationsMorphologique:
     #    sys.stdout.write(f"{label.ljust(10)} | [{bar:{n_bar}s}] {int(100 * j)}% ")
     #    sys.stdout.flush()
     
-    
-    def recap(self, df) :
-        total = len(df)
-        count_one = (len(df[df["r"]==1]))
-        print("1:"+str(count_one)+"\n")     
-        print("0:"+str(total-count_one)+"\n")    
-    
-    def erosion_binaire_f(self, line, array):   
-        i, j, k = float(line["i"]), float(line["j"]), float(line["k"])
-        b = True
-        for el in array :
-            temp = len(self.df[(self.df['i']==(i+float(el[0]))) & (self.df['j']==(j+float(el[1]))) & (self.df['k'] == (k+float(el[2]))) & (self.df['r']==0)])
-            #print(str(temp)+" \n")
-            temp = (temp > 0)
-            b = b & temp
-        
-        if b==False :
-            line['r2'] = 1 
-            line['g2'] = 1 
-            line['b2'] = 1 
-        else:
-            line['r2'] = line['r'] 
-            line['g2'] = line['g']
-            line['b2'] = line['b']
-        print(str(v.arrondi(float(line.name)/self.df_length))+"/1")
-        print("|\n")
-        #self.printProgressBar((100*v.arrondi(float(line.name)/self.df_length)), "Progression")
-        return line
-    
-    
-    def erosion_binaire(self,filename, el_struct, centre, time=1, getDataframe=False, output="" ) :
-        self.df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
-        self.df_length = len(self.df)
-        c0=centre[0]
-        c1=centre[1]
-        c2=centre[2]
-        array = []
-        i=-1
-        for e1 in el_struct:
-            i+=1
-            j=-1
-            for e2 in e1:
-                j+=1
-                k=-1
-                for e3 in e2:
-                    k+=1
-                    if e3==1 and [i,j,k]!=centre : 
-                        array.append([c0-i,c1-j,c2-k])
-        t=0
-        while t<time: 
-            self.df = self.df.apply(lambda x : self.erosion_binaire_f(x, array), axis=1)
-            self.df['r'] = self.df['r2']
-            self.df['g'] = self.df['g2']
-            self.df['b'] = self.df['b2']
-            t+=1
-        if output=="" : output = str(filename.split(".")[0])+"-erosion.txt";
-        
-        self.recap(self.df)
-        
+  
+
+
+    def getNeighbors(self, tab):
+        taille = len(tab)
+        res=[[],[],[]]
+        for h in range(taille):
+            for l in range(taille):
+                for c in range(taille):
+                    if tab[h][l][c]==1:
+                        res[0].append(h-1)
+                        res[1].append(l-1)
+                        res[2].append(c-1)
+                        
+        return res    
+
+    def erosion_binaire(self,filename="", el_struct=[], df=[], time=1, getDataframe=False, output="" ) :
+        if len(df)==0:  
+            df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        result = df.copy()
+        df_length = len(df)
+        neighbors = self.getNeighbors(el_struct)
+        for ndf in range (len(df)):
+            p=df.iloc[ndf]
+            for n in range(len(neighbors[0])):
+                 x=int(p['i'])
+                 y=int(p['j'])
+                 z=int(p['k'])
+                 i,j,k= x+neighbors[0][n],y+neighbors[1][n],z+neighbors[2][n]
+              
+                 exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
+                 
+                 if len(exist)==0:
+                     result.drop(index=ndf,inplace=True)
+                     break  
+        if output=="": output = str(filename.split(".")[0])+"-erosionBinaire.txt"
         if getDataframe : 
-            return self.df
+            return result
         else:
-            self.df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+            result[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         return output
+      
     
+
     
-    def dilatation_binaire_f(self, line, array, time=1 ): 
-        #global df_copy
-        i, j, k = float(line["i"]), float(line["j"]), float(line["k"])
-        if line['r'] ==0 :
-            for el in array:
-                temp = (self.df[(self.df['i']==(i+float(el[0]))) & (self.df['j']==(j+float(el[1]))) & (self.df['k'] == (k+float(el[2])))])
-                if len(temp) == 1 :
-                    temp = self.df_copy[(self.df_copy['i']==(i+float(el[0]))) & (self.df_copy['j']==(j+float(el[1]))) & (self.df_copy['k'] == (k+float(el[2])))]
-                    temp.iloc[0]['r'] = 0
-                    temp.iloc[0]['g'] = 0
-                    temp.iloc[0]['b'] = 0
-                else:
-                    new_row = { "i": (i+float(el[0])), "j": (j+float(el[1])), "k":(k+float(el[2])),"r":0, "g":0, "b":0}
-                    self.df_copy = self.df_copy.append(new_row, ignore_index=True)
-        return line
-    
-    def dilatation_binaire(self, filename, el_struct, centre, time=1, getDataframe=False, output="" ) :
-        self.df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
-        c0=centre[0]
-        c1=centre[1]
-        c2=centre[2]
-        array = []
-        self.df_copy = self.df.copy()
-        i=-1
-        for e1 in el_struct:
-            i+=1
-            j=-1
-            for e2 in e1:
-                j+=1
-                k=-1
-                for e3 in e2:
-                    k+=1
-                    if e3==1 and [i,j,k]!=centre : 
-                        array.append([c0-i,c1-j,c2-k]) 
-        n=0
-        while n<time:
-            print(len(self.df_copy))
-            self.df = self.df.apply(lambda x : self.dilatation_binaire_f(x, array), axis=1)
-            print(len(self.df_copy))
-            self.df=self.df_copy
-            n+=1
-        if output=="": output = str(filename.split(".")[0])+"-dilatation.txt"
-        
-        self.recap(self.df)
+    def dilatation_binaire(self, filename="", el_struct=[],df=[] , time=1, getDataframe=False, output="" ) :
+        if len(df)==0:  
+            df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        result = df.copy()
+        neighbors = self.getNeighbors(el_struct)
+        for ndf in range (len(df)):
+            p=df.iloc[ndf]
+            for n in range(len(neighbors[0])):
+                 x=int(p['i'])
+                 y=int(p['j'])
+                 z=int(p['k'])
+                 i,j,k=x+neighbors[0][n],y+neighbors[1][n],z+neighbors[2][n]
+              
+                 exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
+              
+                 if len(exist)==0:      
+                     new_row = {"i":i, "j":j, "k":k, "r":0 ,"g":0,"b":0}
+                     result = result.append(new_row, ignore_index=True)
+                     
         if getDataframe : 
-            return self.df
+            return result
         else:
-            self.df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+            result[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         return output
 
 
-    def ouverture_binaire(self, filename, el_struct, centre) :
-        df = self.erosion_binaire(filename, el_struct, centre, getDataframe=(True))
-        df[['i','j','k','r','g','b']].to_csv("data/temp.txt", sep=" ", index=False ,index_label=False, header=False)
-        output = str(filename.split(".")[0])+"-ouverture.txt"
-        return self.dilatation_binaire("data/temp.txt", el_struct, centre, output=output)
+    def ouverture_binaire(self, filename, el_struct, getDataframe=False) :
+        erode = self.erosion_binaire(filename, el_struct, getDataframe=True)
+        dilate = self.dilatation_binaire(df=erode,el_struct=el_struct, getDataframe=True)
+        output = str(filename.split(".")[0])+"-ouvertureBinaire.txt"
+        
+        if getDataframe : 
+            return dilate
+        else:
+            dilate[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
     
-    def fermeture_binaire(self, filename, el_struct, centre) :
-        df = self.dilatation_binaire(filename, el_struct, centre, getDataframe=(True))
-        df[['i','j','k','r','g','b']].to_csv("data/temp.txt", sep=" ", index=False ,index_label=False, header=False)
-        output = str(filename.split(".")[0])+"-fermeture.txt"
-        return self.erosion_binaire("data/temp.txt", el_struct, centre, output=output)
+    def fermeture_binaire(self, filename, el_struct, getDataframe="") :
+        dilate = self.dilatation_binaire(filename, el_struct, getDataframe=True)
+        erode = self.erosion_binaire(df=dilate,el_struct=el_struct, getDataframe=True)
+        output = str(filename.split(".")[0])+"-fermetureBinaire.txt"
+        if getDataframe : 
+            return erode
+        else:
+            erode[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
+    
 
 
 
@@ -176,79 +140,79 @@ class OperationsMorphologique:
 
 
 
-    def morpho_f(self, line, array,df_copy, typ):   
-        i, j, k = float(line["i"]), float(line["j"]), float(line["k"])
-        r = []
-        g = []
-        b = []
-        for el in array :
-            temp = (df_copy[(df_copy['i']==(i+float(el[0]))) & (df_copy['j']==(j+float(el[1]))) & (df_copy['k'] == (k+float(el[2])))])
-            if(line.name==0): print(temp)
-            if(len(temp)==1):
-                r.append(temp.iloc[0]['r'])
-                g.append(temp.iloc[0]['g'])
-                b.append(temp.iloc[0]['b'])
-                print(r)
-         
-        if typ=="dilatation" and len(r)>0 :
-            line['r'] = max(r)
-            line['g'] = max(g)
-            line['b'] = max(b)
-        elif typ=="erosion" and len(r)>0 :
-            line['r'] = min(r)
-            line['g'] = min(g)
-            line['b'] = min(b)
-        return line
+    def morpho(self, df, el_struct, operation="erosion"):   
+        result = df.copy()
+        neighbors = self.getNeighbors(el_struct)
+        for ndf in range (len(df)):
+            r = []
+            g = []
+            b = []
+            p = df.iloc[ndf]
+            for n in range(len(neighbors[0])):
+                 x=int(p['i'])
+                 y=int(p['j'])
+                 z=int(p['k'])
+                 i,j,k=x+neighbors[0][n],y+neighbors[1][n],z+neighbors[2][n]
+                 exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
+                    
+                 if(len(exist)==1):
+                        r.append(exist.iloc[0]['r'])
+                        g.append(exist.iloc[0]['g'])
+                        b.append(exist.iloc[0]['b']) 
+                        
+            if operation=="dilatation" and len(r)>0 :
+                #print(r)
+                #print(str(max(r))+" "+str(max(g))+" "+str(max(b)) )
+                result['r'][ndf] = max(r)
+                result['g'][ndf] = max(g)
+                result['b'][ndf] = max(b)
+            elif operation=="erosion" and len(r)>0 :
+                #print(r)
+                result['r'][ndf] = min(r)
+                result['g'][ndf] = min(g)
+                result['b'][ndf] = min(b)
+        return result
 
 
-    def erosion(self, filename, el_struct, centre ) :
-        df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
-        c0=centre[0]
-        c1=centre[1]
-        c2=centre[2]
-        array = []
-        i=-1
-        for e1 in el_struct:
-            i+=1
-            j=-1
-            for e2 in e1:
-                j+=1
-                k=-1
-                for e3 in e2:
-                    k+=1
-                    if e3==1 and [i,j,k]!=centre : 
-                        array.append([i-c0,j-c1,k-c2])
-        print(array)
-        #return 0
-        df_copy=df.copy()
-        df = df.apply(lambda x : self.morpho_f(x, array, df_copy,'erosion'), axis=1)
-        output = str(filename.split(".")[0])+"-erosion.txt";
-        df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+    def erosion(self, filename="", el_struct=[], df=[], centre=[], getDataframe=False, output=""    ) :
+        if len(df)==0:  
+            df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        print(df)
+        erode = self.morpho(df, el_struct, operation="erosion")
+        if getDataframe : return erode
+        if output=="": output = str(filename.split(".")[0])+"-erosion.txt";
+        erode[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         return output
     #
     
-    def dilatation(self,filename, el_struct, centre ) :
-        df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
-        c0=centre[0]
-        c1=centre[1]
-        c2=centre[2]
-        array = []
-        i=-1
-        for e1 in el_struct:
-            i+=1
-            j=-1
-            for e2 in e1:
-                j+=1
-                k=-1
-                for e3 in e2:
-                    k+=1
-                    if e3==1 and [i,j,k]!=centre : 
-                        array.append([i-c0,j-c1,k-c2])
-        print(array)
-        #return 0
-        df_copy=df.copy()
-        df = df.apply(lambda x : self.morpho_f(x, array, df_copy,'dilatation'), axis=1)
-        output = str(filename.split(".")[0])+"-dilatation.txt";
-        df[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+    def dilatation(self,filename="",el_struct=[], df=[], centre=[], getDataframe=False, output=""  ) :
+        if len(df)==0:  
+            df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        dilate = self.morpho(df, el_struct, operation="dilatation")
+        
+        if getDataframe : return dilate
+        if output=="": output = str(filename.split(".")[0])+"-dilatation.txt";
+        dilate[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         return output
     #
+
+
+    def ouverture(self, filename="", el_struct=[], df=[], centre=[],getDataframe=False, output="") :
+        if len(df)==0: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        erode = self.erosion(filename=filename, df=df,el_struct=el_struct, centre=centre, getDataframe=True)
+        el_struct = self.getSymmetry(el_struct)
+        ouverture = self.dilatation(df=erode, el_struct=el_struct, centre=centre,getDataframe=True)
+        if getDataframe : return ouverture
+        output = str(filename.split(".")[0])+"-ouverture.txt"
+        ouverture[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
+    
+    def fermeture(self, filename="", el_struct=[], df=[], centre=[],getDataframe=False, output="") :
+        if len(df)==0: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        dilate = self.erosion(filename=filename,df=df,el_struct=el_struct, centre=centre, getDataframe=True)
+        el_struct = self.getSymmetry(el_struct)
+        fermeture = self.erosion(df=dilate, el_struct=el_struct, centre=centre,getDataframe=True)
+        if getDataframe : return fermeture
+        output = str(filename.split(".")[0])+"-fermeture.txt";
+        fermeture[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
