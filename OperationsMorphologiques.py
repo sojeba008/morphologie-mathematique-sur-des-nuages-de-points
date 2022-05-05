@@ -44,7 +44,7 @@ class OperationsMorphologique:
         return res    
 
     def erosion_binaire(self,filename="", el_struct=[], df=[], time=1, getDataframe=False, output="" ) :
-        if len(df)==0:  
+        if len(df)==0 and type(df)==list:  
             df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         result = df.copy()
         df_length = len(df)
@@ -73,7 +73,7 @@ class OperationsMorphologique:
 
     
     def dilatation_binaire(self, filename="", el_struct=[],df=[] , time=1, getDataframe=False, output="" ) :
-        if len(df)==0:  
+        if len(df)==0 and type(df)==list:  
             df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         result = df.copy()
         neighbors = self.getNeighbors(el_struct)
@@ -98,8 +98,10 @@ class OperationsMorphologique:
         return output
 
 
-    def ouverture_binaire(self, filename, el_struct, getDataframe=False) :
-        erode = self.erosion_binaire(filename, el_struct, getDataframe=True)
+    def ouverture_binaire(self, filename="", el_struct=[], df=[] ,getDataframe=False) :
+        if len(df)==0 and type(df)==list:  
+            df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        erode = self.erosion_binaire(df=df, el_struct=el_struct, getDataframe=True)
         dilate = self.dilatation_binaire(df=erode,el_struct=el_struct, getDataframe=True)
         output = str(filename.split(".")[0])+"-ouvertureBinaire.txt"
         
@@ -175,7 +177,7 @@ class OperationsMorphologique:
 
 
     def erosion(self, filename="", el_struct=[], df=[], centre=[], getDataframe=False, output=""    ) :
-        if len(df)==0:  
+        if len(df)==0 and type(df)==list:  
             df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         print(df)
         erode = self.morpho(df, el_struct, operation="erosion")
@@ -186,7 +188,7 @@ class OperationsMorphologique:
     #
     
     def dilatation(self,filename="",el_struct=[], df=[], centre=[], getDataframe=False, output=""  ) :
-        if len(df)==0:  
+        if len(df)==0 and type(df)==list:  
             df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         dilate = self.morpho(df, el_struct, operation="dilatation")
         
@@ -198,7 +200,7 @@ class OperationsMorphologique:
 
 
     def ouverture(self, filename="", el_struct=[], df=[], centre=[],getDataframe=False, output="") :
-        if len(df)==0: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        if len(df)==0 and type(df)==list: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         erode = self.erosion(filename=filename, df=df,el_struct=el_struct, centre=centre, getDataframe=True)
         el_struct = self.getSymmetry(el_struct)
         ouverture = self.dilatation(df=erode, el_struct=el_struct, centre=centre,getDataframe=True)
@@ -208,11 +210,38 @@ class OperationsMorphologique:
         return output
     
     def fermeture(self, filename="", el_struct=[], df=[], centre=[],getDataframe=False, output="") :
-        if len(df)==0: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        if len(df)==0 and type(df)==list: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
         dilate = self.erosion(filename=filename,df=df,el_struct=el_struct, centre=centre, getDataframe=True)
         el_struct = self.getSymmetry(el_struct)
         fermeture = self.erosion(df=dilate, el_struct=el_struct, centre=centre,getDataframe=True)
         if getDataframe : return fermeture
         output = str(filename.split(".")[0])+"-fermeture.txt";
         fermeture[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
+        return output
+    
+    
+    
+    def lantuejoulSkel(self, filename="", el_struct=[], df=[], getDataframe=False, output=""):
+        if len(df)==0 and type(df)==list: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
+        
+        erode = self.erosion_binaire(df=df, el_struct=el_struct, getDataframe=True)
+        it = 0
+        skeleton = pd.DataFrame({'index':[], 'i': [], 'j': [], 'k': [], 'r': [], 'g': [], 'b': []})
+        while (len(erode)>0):
+            if it>0:
+                erode = self.erosion_binaire(df=erode, el_struct=el_struct, getDataframe=True)
+            erode = erode.reset_index(drop=True)
+            ouverture_erode = self.ouverture_binaire(df=erode, el_struct=el_struct, getDataframe=True);
+            
+            try:
+                newSkeletonVoxels = erode.drop(ouverture_erode.index)
+            except Exception:
+                pass
+            skeleton = pd.concat([skeleton, newSkeletonVoxels ]).drop_duplicates(keep="first")
+            it+=1
+            print("Iteration : "+str(it)+" | Erode size "+str(len(erode)))
+            #break
+        if getDataframe : return skeleton
+        output = str(filename.split(".")[0])+"-skeleton.txt";
+        skeleton[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         return output
