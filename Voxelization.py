@@ -128,7 +128,7 @@ def voxelize(filename="data/chaise.txt",h=100, algorithm=""):
     
     
     if(algorithm=="" or algorithm=="densite"):
-        output = filename.split(".")[0]+"-h"+str(h)+"-Densite.txt"
+        output = filename.split(".")[0]+"Formated-H"+str(h)+"-Densite.txt"
         result['densite'] = output
         voxels[['i','j','k','r','g','b']].to_csv(filename.split(".")[0]+"-h"+str(h)+"-Densite.txt", sep=" ", index=False ,index_label=False, header=False)
     
@@ -140,7 +140,7 @@ def voxelize(filename="data/chaise.txt",h=100, algorithm=""):
         voxels['r'] = voxels['I'].apply(lambda r:binariser(float(r)))
         voxels['g'] = voxels['I'].apply(lambda g:binariser(float(g)))
         voxels['b'] = voxels['I'].apply(lambda b:binariser(float(b)))
-        output=filename.split(".")[0]+"-h"+str(h)+"-Binaire.txt";
+        output=filename.split(".")[0]+"Formated-H"+str(h)+"-Binaire.txt";
         result['binaire'] = output
         voxels[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
         #pcd = o3d.io.read_point_cloud(filename.split(".")[0]+"Formated-H"+str(h)+"-Binaire.txt", format='xyzrgb')
@@ -151,7 +151,7 @@ def voxelize(filename="data/chaise.txt",h=100, algorithm=""):
         voxels['r'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'r')))
         voxels['g'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'g')))
         voxels['b'] = voxels['points'].apply(lambda pts:arrondi(moyenne_empirique(pts,'b')))
-        output = filename.split(".")[0]+"-h"+str(h)+"-Moyenne-Empirique.txt"
+        output = filename.split(".")[0]+"Formated-H"+str(h)+"-Moyenne-Empirique.txt"
         result['Moyenne-Empirique'] = output
         voxels[['i','j','k','r','g','b']].to_csv(output, sep=" ", index=False ,index_label=False, header=False)
     

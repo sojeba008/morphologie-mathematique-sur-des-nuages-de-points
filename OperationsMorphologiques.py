@@ -211,7 +211,7 @@ class OperationsMorphologique:
     
     def fermeture(self, filename="", el_struct=[], df=[], centre=[],getDataframe=False, output="") :
         if len(df)==0 and type(df)==list: df = pd.read_csv(filename, delimiter=" ", names=["i","j","k","r","g","b"])
-        dilate = self.erosion(filename=filename,df=df,el_struct=el_struct, centre=centre, getDataframe=True)
+        dilate = self.dilatation(filename=filename,df=df,el_struct=el_struct, centre=centre, getDataframe=True)
         el_struct = self.getSymmetry(el_struct)
         fermeture = self.erosion(df=dilate, el_struct=el_struct, centre=centre,getDataframe=True)
         if getDataframe : return fermeture
