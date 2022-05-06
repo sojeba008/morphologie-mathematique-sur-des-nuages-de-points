@@ -11,8 +11,9 @@ import OperationsMorphologiques
 
 
 filename="data/chaise.txt"
-test = vxl.voxelize(filename=filename, h=100,algorithm="")
-
+#test = vxl.voxelize(filename=filename, h=100,algorithm="")
+test={"binaire":"data/chaiseFormated-H50-Binaire.txt","densité":"data/chaiseFormated-H50-Densite.txt",
+      "Moyenne-Empirique":"data/chaiseFormated-H50-Moyenne-Empirique.txt"}
 v.visualize(filename)
 
 v.visualize(test['binaire'])

@@ -33,23 +33,14 @@ el_struct[1][1][0]=1
 el_struct[1][1][2]=0
 el_struct[2][1][1]=1
 print(el_struct)
-el_struct = [[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,1],[0,0,0]],[[0,0,0],[0,0,0],[0,0,0]]]
+el_struct = [[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[1,1,1],[0,0,0]],[[0,0,0],[0,1,0],[0,0,0]]]
 temp = op.erosion("data/chaiseFormated-H100-Moyenne-Empirique.txt", el_struct, getDataframe=True)
 
 
-v.visualize("data/chaiseFormated-H100-Binaire.txt")
+v.visualize("data/chaiseFormated-H10-Binaire.txt")
 
-skel = op.lantuejoulSkel(filename = "data/chaiseFormated-H100-Binaire.txt", el_struct=el_struct, getDataframe=True )
+skel = op.lantuejoulSkel(filename = "data/chaiseFormated-H30-Binaire.txt", el_struct=el_struct, getDataframe=True )
 v.visualizeFromDataFrame(skel)
-
-
-
-
-
-
-
-
-
 
 
 
