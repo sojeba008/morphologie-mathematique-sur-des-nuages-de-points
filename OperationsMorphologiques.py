@@ -37,10 +37,9 @@ class OperationsMorphologique:
             for l in range(taille):
                 for c in range(taille):
                     if tab[h][l][c]==1:
-                        res[0].append(h-1)
+                        res[2].append(h-1)
                         res[1].append(l-1)
-                        res[2].append(c-1)
-                        
+                        res[0].append(c-1)
         return res    
 
     def erosion_binaire(self,filename="", el_struct=[], df=[], time=1, getDataframe=False, output="" ) :
@@ -126,16 +125,17 @@ class OperationsMorphologique:
 
 
     def getSymmetry(self, el_struct):
+        el_struct_sym = el_struct.copy()
         i=0
-        while i<len(el_struct):
+        while i<len(el_struct_sym):
             j=0
-            el_struct[i]=list(reversed(el_struct[i]))
-            while j<len(el_struct[0]):
-                el_struct[i][j]=list(reversed(el_struct[i][j])) 
+            el_struct_sym[i]=list(reversed(el_struct_sym[i]))
+            while j<len(el_struct_sym[0]):
+                el_struct_sym[i][j]=list(reversed(el_struct_sym[i][j])) 
                 j+=1
             i+=1
-        el_struct= list(reversed(el_struct)) 
-        return el_struct
+        el_struct_sym= list(reversed(el_struct_sym)) 
+        return el_struct_sym
 
 
 
@@ -150,18 +150,22 @@ class OperationsMorphologique:
             g = []
             b = []
             p = df.iloc[ndf]
+            
+            x=int(p['i'])
+            y=int(p['j'])
+            z=int(p['k'])
             for n in range(len(neighbors[0])):
-                 x=int(p['i'])
-                 y=int(p['j'])
-                 z=int(p['k'])
                  i,j,k=x+neighbors[0][n],y+neighbors[1][n],z+neighbors[2][n]
                  exist = df[(i==df['i'] ) &  (j==(df['j'])) &  (k==(df['k']))  ]
-                    
+            
+                 
                  if(len(exist)==1):
                         r.append(exist.iloc[0]['r'])
                         g.append(exist.iloc[0]['g'])
                         b.append(exist.iloc[0]['b']) 
-                        
+                    
+            #print(str(x)+"|"+str(y)+"|")
+            #print(r)
             if operation=="dilatation" and len(r)>0 :
                 #print(r)
                 #print(str(max(r))+" "+str(max(g))+" "+str(max(b)) )
@@ -169,10 +173,14 @@ class OperationsMorphologique:
                 result['g'][ndf] = max(g)
                 result['b'][ndf] = max(b)
             elif operation=="erosion" and len(r)>0 :
-                #print(r)
+                #print(min(r))
                 result['r'][ndf] = min(r)
                 result['g'][ndf] = min(g)
                 result['b'][ndf] = min(b)
+            elif len(r)==0 :
+                result['r'][ndf] = p['r']
+                result['g'][ndf] = p['g']
+                result['b'][ndf] = p['r']
         return result
 
 

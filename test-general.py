@@ -12,8 +12,8 @@ import OperationsMorphologiques
 
 filename="data/chaise.txt"
 #test = vxl.voxelize(filename=filename, h=100,algorithm="")
-test={"binaire":"data/chaiseFormated-H50-Binaire.txt","densité":"data/chaiseFormated-H50-Densite.txt",
-      "Moyenne-Empirique":"data/chaiseFormated-H50-Moyenne-Empirique.txt"}
+test={"binaire":"data/chaiseFormated-H50-Binaire.txt","densite":"data/chaiseFormated-H50-Densite.txt",
+      "Moyenne-Empirique":"data/chaiseFormated-H100-Moyenne-Empirique.txt"}
 v.visualize(filename)
 
 v.visualize(test['binaire'])
@@ -23,10 +23,13 @@ v.visualize(test['densite'])
 v.visualize(test['Moyenne-Empirique'])
 
 op = OperationsMorphologiques.OperationsMorphologique()
-el_struct = [[[0,0,0],[0,1,0],[0,0,0]],[[0,0,0],[0,1,1],[0,0,0]],[[0,0,0],[0,0,0],[0,0,0]]]
+el_struct = [[[0,0,0],[0,1,0],[0,0,0]],[[0,1,0],[1,1,1],[0,1,0]],[[0,0,0],[0,1,0],[0,0,0]]]
 
 erode = op.erosion_binaire(test['binaire'], el_struct, getDataframe=True)
 v.visualizeFromDataFrame(erode)
+
+dilate = op.dilatation_binaire(test['densite'], el_struct, getDataframe=True)
+v.visualizeFromDataFrame(dilate)
 
 
 ouverture = op.ouverture_binaire(test['binaire'], el_struct, getDataframe=True)
