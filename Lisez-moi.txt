@@ -1,0 +1,13 @@
+A lire !!!
+Voici les étapes à suivre pour exécuter les programmes que nous avons écrits :
+1. Installer python en cliquant ici si il n’est pas encore installé ;
+2. Installer les modules python numpy, pandas et open3D
+3. Le fichier test-visualization.py présente comment faire une visualisation d'un nuage de points
+   La fonction qui permet de faire la visualisation de nuage de points est Visualization.py
+4. Le fichier test-voxelization.py présente comment faire une voxelisation à partir d'un nuage de points en fichier.
+   La fonction de voxelisation se trouve dans le fichier Voxelization.py
+5. Le fichier test-operationsmorphologiques.py présente comment appliquer des opérations morphologiques sur des images 3D.  
+   La classe contenant les fonction d'opérations omorphologiques se trouvent dans le fichier OperationsMorphologiques.py
+
+6. Le fichier test-general.py présente un test général, de la voxelisation d'un nuage de points jusqu'à l'application des opérations morphologiques et 
+aux visualisations des résultats.

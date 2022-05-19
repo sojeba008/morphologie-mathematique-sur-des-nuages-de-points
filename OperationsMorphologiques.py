@@ -89,7 +89,7 @@ class OperationsMorphologique:
                  if len(exist)==0:      
                      new_row = {"i":i, "j":j, "k":k, "r":0 ,"g":0,"b":0}
                      result = result.append(new_row, ignore_index=True)
-                     
+        if output=="": output = str(filename.split(".")[0])+"-dilatationBinaire.txt"
         if getDataframe : 
             return result
         else:
